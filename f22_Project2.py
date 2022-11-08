@@ -102,10 +102,10 @@ def get_listing_information(listing_id):
     for i in (soup.find_all('li', class_='f19phm7j')):
         if i.text.startswith('Policy number:'):
             found = (re.findall(':\s(.*)', i.text))
-            for j in (found):
-                    if 'Pending' in j:
+            for j in found:
+                    if 'pending'.upper() in j.upper():
                         policy_number = 'Pending'
-                    elif 'Exempt' in j: 
+                    elif 'exempt'.upper() in j.upper(): 
                         policy_number = 'Exempt'
                     else:
                         policy_number = j
@@ -126,7 +126,7 @@ def get_listing_information(listing_id):
             if j.text == 'Studio':
                 bedrooms = 1
             # ask if this is okay
-            if 'bedroom' in j.text or 'bedrooms' in j.text:
+            if j.text.endswith('bedroom') or j.text.endswith('bedrooms'):
                 found = re.findall('^(\d+)\s', j.text)
                 for k in found:
                     bedrooms = int(k)
@@ -153,17 +153,14 @@ def get_detailed_listing_database(html_file):
         name = listings[0]
         cost = listings[1]
         id = listings[2]
+
         policy = get_listing_information(id)[0]
         place = get_listing_information(id)[1]
         bedrooms = get_listing_information(id)[2]
         
         detailed_list.append((name, cost, id, policy, place, bedrooms))
-
+    # ask about compiler slowing down after this function was written
     return detailed_list
-        
-
-
-    pass
 
 
 def write_csv(data, filename):
@@ -187,8 +184,19 @@ def write_csv(data, filename):
     In order of least cost to most cost.
 
     This function should not return anything.
+
     """
-    pass
+
+    column_headers = ["Listing Title", "Cost", "Listing ID", "Policy Number", "Place Type", "Number of Bedrooms"]
+    sorted_listing_database = sorted(data, key=lambda x:x[1])
+
+    # ask about inst being turined into strings
+    with open(filename, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(column_headers)
+        for tup in sorted_listing_database:
+            writer.writerow(tup)
+    
 
 
 def check_policy_numbers(data):
@@ -210,7 +218,13 @@ def check_policy_numbers(data):
     ]
 
     """
-    pass
+    invalid= []
+    for i in data:
+        found = re.findall('^STR-0{3}\d{4}|^20\d{2}-0{2}\d{4}STR$', i[3])
+        if i[3] != 'Pending' and i[3] != 'Exempt' and i[3] not in found:
+            invalid.append(i[2])
+    print(invalid)
+    return invalid
 
 
 def extra_credit(listing_id):
@@ -320,10 +334,12 @@ class TestCases(unittest.TestCase):
         # check that there are 21 lines in the csv
         self.assertEqual(len(csv_lines), 21)
         # check that the header row is correct
-
+        self.assertEqual(csv_lines[0], ["Listing Title", "Cost", "Listing ID", "Policy Number", "Place Type", "Number of Bedrooms"])
         # check that the next row is Private room in Mission District,82,51027324,Pending,Private Room,1
+        self.assertEqual(csv_lines[1], ["Private room in Mission District",'82',"51027324","Pending","Private Room",'1'])
 
         # check that the last row is Apartment in Mission District,399,28668414,Pending,Entire Room,2
+        self.assertEqual(csv_lines[-1], ["Apartment in Mission District",'399',"28668414","Pending","Entire Room",'2'])
 
         pass
 
@@ -336,10 +352,14 @@ class TestCases(unittest.TestCase):
         # check that the return value is a list
         self.assertEqual(type(invalid_listings), list)
         # check that there is exactly one element in the string
+        self.assertEqual(len(invalid_listings), 1)
 
         # check that the element in the list is a string
+        for i in invalid_listings:
+            self.assertEqual(type(i), str)
 
         # check that the first element in the list is '16204265'
+        self.assertEqual(invalid_listings[0], '16204265')
         pass
 
 
