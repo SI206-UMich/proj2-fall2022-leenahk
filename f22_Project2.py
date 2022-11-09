@@ -105,7 +105,7 @@ def get_listing_information(listing_id):
             for j in found:
                     if 'pending'.upper() in j.upper():
                         policy_number = 'Pending'
-                    elif 'exempt'.upper() in j.upper() or 'not needed'.upper() in j.upper(): # if not needed in 
+                    elif 'exempt'.upper() in j.upper() or 'not needed'.upper() in j.upper():
                         policy_number = 'Exempt'
                     else:
                         policy_number = j
@@ -217,12 +217,12 @@ def check_policy_numbers(data):
 
     """
     invalid= []
+
     for i in data:
         found = (re.findall('Pending|Exempt|STR-0{3}\d{4}|20\d{2}-0{2}\d{4}STR', i[3]))
         if i[3] not in found:
             invalid.append(i[2])
     
-    print(invalid)
     return invalid
 
 
@@ -359,6 +359,11 @@ class TestCases(unittest.TestCase):
 
         # check that the first element in the list is '16204265'
         self.assertEqual(invalid_listings[0], '16204265')
+        pass
+
+    def test_extra_credit(self):
+        reviews = extra_credit('1944564')
+
         pass
 
 
