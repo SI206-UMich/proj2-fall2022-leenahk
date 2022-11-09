@@ -105,7 +105,7 @@ def get_listing_information(listing_id):
             for j in found:
                     if 'pending'.upper() in j.upper():
                         policy_number = 'Pending'
-                    elif 'exempt'.upper() in j.upper(): 
+                    elif 'exempt'.upper() in j.upper() or 'not needed'.upper() in j.upper(): # if not needed in 
                         policy_number = 'Exempt'
                     else:
                         policy_number = j
@@ -159,7 +159,6 @@ def get_detailed_listing_database(html_file):
         bedrooms = get_listing_information(id)[2]
         
         detailed_list.append((name, cost, id, policy, place, bedrooms))
-    # ask about compiler slowing down after this function was written
     return detailed_list
 
 
@@ -190,7 +189,6 @@ def write_csv(data, filename):
     column_headers = ["Listing Title", "Cost", "Listing ID", "Policy Number", "Place Type", "Number of Bedrooms"]
     sorted_listing_database = sorted(data, key=lambda x:x[1])
 
-    # ask about inst being turined into strings
     with open(filename, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(column_headers)
@@ -220,9 +218,10 @@ def check_policy_numbers(data):
     """
     invalid= []
     for i in data:
-        found = re.findall('^STR-0{3}\d{4}|^20\d{2}-0{2}\d{4}STR$', i[3])
-        if i[3] != 'Pending' and i[3] != 'Exempt' and i[3] not in found:
+        found = (re.findall('Pending|Exempt|STR-0{3}\d{4}|20\d{2}-0{2}\d{4}STR', i[3]))
+        if i[3] not in found:
             invalid.append(i[2])
+    
     print(invalid)
     return invalid
 
