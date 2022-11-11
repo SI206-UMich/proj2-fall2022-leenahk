@@ -41,6 +41,7 @@ def get_listings_from_search_results(html_file):
         listing_names.append(i.text)
 
 
+
     #get listing costs
     costs = []
     for i in soup.find_all('div', class_='phbjkf1 dir dir-ltr'):
@@ -240,7 +241,28 @@ def extra_credit(listing_id):
     gone over their 90 day limit, else return True, indicating the lister has
     never gone over their limit.
     """
-    pass
+    
+    file = 'html_files/listing_' + listing_id + '_reviews.html'
+    with open(file, 'r') as f:
+        contents = f.read()
+        soup = BeautifulSoup(contents, 'html.parser')
+
+    reviews_dict = {}
+    for i in soup.find_all('li', class_='_1f1oir5'):
+        reviews = i.text
+        if (reviews.split()[1]) not in reviews_dict:
+            reviews_dict[reviews.split()[1]] = 1
+        else:
+            reviews_dict[reviews.split()[1]] += 1
+    
+    for year in reviews_dict:
+        if reviews_dict[year] > 90:
+            return False
+        
+    return True
+
+  
+    
 
 
 class TestCases(unittest.TestCase):
@@ -362,7 +384,9 @@ class TestCases(unittest.TestCase):
         pass
 
     def test_extra_credit(self):
-        reviews = extra_credit('1944564')
+        
+        self.assertEqual(extra_credit('1944564'), True)
+        self.assertEqual(extra_credit('16204265'), False)
 
         pass
 
@@ -371,4 +395,5 @@ if __name__ == '__main__':
     database = get_detailed_listing_database("html_files/mission_district_search_results.html")
     write_csv(database, "airbnb_dataset.csv")
     check_policy_numbers(database)
+    extra_credit('16204265')
     unittest.main(verbosity=2)
