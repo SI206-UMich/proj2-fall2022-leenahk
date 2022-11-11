@@ -283,6 +283,9 @@ class TestCases(unittest.TestCase):
         self.assertEqual(listings[0], ('Loft in Mission District', 210, '1944564'))
         # check that the last title is correct (open the search results html and find it)
         self.assertEqual(listings[-1], ('Guest suite in Mission District', 238, '32871760'))
+
+        self.assertEqual(listings[1], ('Private room in Mission District', 125, '1623609'))
+        self.assertEqual(listings[6], ('Apartment in Mission District', 399, '28668414'))
         
         pass
 
@@ -317,6 +320,9 @@ class TestCases(unittest.TestCase):
         self.assertEqual((listing_informations[-1])[1],'Private Room')
         # check that the third listing has one bedroom
         self.assertEqual((listing_informations[2])[-1],1)
+
+        self.assertEqual(get_listing_information('32871760'),('STR-0004707', 'Entire Room', 1))
+        self.assertEqual(get_listing_information('51027324'),('Pending', 'Private Room', 1))
 
         pass
 
